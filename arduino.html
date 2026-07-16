@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<body text="#4B4B4B" link="#4B4B4B" vlink="#4B4B4B" alink="#4B4B4B" bgcolor="#dddddd">
+
+    <I><B><CENTER><FONT COLOR="#AFAFAF" SIZE="+3">Arduino Notes</FONT></CENTER></B></I>
+	<br clear="left">
+	
+<hr color="black" size="7">
+
+<pre>	 
+
+// The watchdog timer (WDT) of the ESP8266 is poorly documented so i wrote this
+// tiny program the test the capabilities of the software and hardware watchdog.
+// Especially the effect of enabling and disabling them.
+//
+// Conclusion:
+// -----------
+//            WatchDog timing
+//        HW         SW        timeout
+//     enabled    enabled      2 secs
+//     enabled    disabled     8 secs
+//     disabled   enabled      2 secs
+//     disabled   disabled     infinite
+//
+// Disabling the hardware watchdog is permanent.
+// The software watchDog is automatically re-enabled at the end of the loop.
+// So, to make it permanent, the software watchDog must be disabled repeatedly
+// at the beginning of the loop.
+// Jos Lavrijsen.
+//
+
+long lockTicks = 0;
+long cnt = 0;
+
+void setup() {
+    //DisableHardwareWatchDog();
+    Serial.begin(115200);
+}
+
+void loop() {
+    //DisableSoftwareWatchDog();
+    cnt = 0;
+    long start = millis();
+    while (cnt < lockTicks) cnt++; // lock system
+    Serial.println("Locked millis:" + String(millis() - start));
+    lockTicks += 1000000;
+}
+
+void DisableSoftwareWatchDog() {
+    ESP.wdtDisable();
+}
+
+void DisableHardwareWatchDog() {
+    *((volatile uint32_t*) 0x60000900) &= ~(1);
+}
+
+</pre>
+<a href="https://drive.google.com/file/d/1xJ8bEjJWqja8N74ppv6-tVYoYFremLpu/view?usp=sharing">source</a>
+<hr color="black" size="7">
+
+<hr color="black" size="7">
+
+<hr color="black" size="7">
+<pre>
+     (__)
+     (oo)    /    _
+ /----\/    / _  ( 
+  ||-||  (_/ (_) _)
+  ~~ ~~             jos.lavrijsen@gmail.com
+
+</pre>
+<hr color="black" size="7">
+
+</body>
+</html>
